@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cadastro de Profissionais — DGFNSP</title>
+  <meta name="theme-color" content="#071d41">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="DGFNSP">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; font-family: "Segoe UI", Roboto, Arial, sans-serif; color: #fff; background: linear-gradient(160deg, #071d41 0%, #0c326f 60%, #1351b4 100%); }
+    .card { width: 100%; max-width: 420px; text-align: center; }
+    .icon { width: 132px; height: 132px; border-radius: 28px; box-shadow: 0 14px 40px rgba(0,0,0,.35); }
+    h1 { margin: 20px 0 6px; font-size: 22px; }
+    p { margin: 0 0 22px; color: #c9d6ee; font-size: 14px; }
+    .btn { display: block; width: 100%; margin: 10px 0; padding: 14px 18px; border: 0; border-radius: 10px; font-size: 15px; font-weight: 800; text-decoration: none; cursor: pointer; }
+    .btn-open { color: #071d41; background: #fff; }
+    .btn-install { color: #fff; background: #168821; }
+    .btn[hidden], .help[hidden] { display: none; }
+    .help { margin-top: 14px; padding: 14px 16px; text-align: left; color: #071d41; background: #fff; border-radius: 10px; font-size: 14px; line-height: 1.55; }
+    .help strong { color: #1351b4; }
+    .help ol { margin: 6px 0 0; padding-left: 20px; }
+    .bar { height: 5px; margin: 22px auto 0; width: 160px; border-radius: 3px; background: linear-gradient(90deg, #168821 0 33%, #ffcd07 33% 66%, #2f80ed 66% 100%); }
+    small { display: block; margin-top: 16px; color: #9fb3d6; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <img class="icon" src="icons/icon-512.png" alt="Ícone do aplicativo DGFNSP">
+    <h1>Cadastro de Profissionais</h1>
+    <p>DGFNSP · Gestão de pessoas</p>
+    <a class="btn btn-open" id="btn-open" href="#">Abrir o sistema</a>
+    <button class="btn btn-install" id="btn-install" type="button">Instalar aplicativo</button>
+    <div class="help" id="help-ios" hidden>
+      <strong>iPhone / iPad (use o Safari):</strong>
+      <ol><li>Toque no botão <b>Compartilhar</b> (quadrado com seta ↑).</li><li>Escolha <b>Adicionar à Tela de Início</b>.</li><li>Toque em <b>Adicionar</b>.</li></ol>
+    </div>
+    <div class="help" id="help-other" hidden>
+      <strong>Instalação manual:</strong>
+      <ol>
+        <li><b>Android (Chrome):</b> menu ⋮ → <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</li>
+        <li><b>Windows (Edge):</b> menu … → <b>Aplicativos</b> → <b>Instalar este site como aplicativo</b>.</li>
+        <li><b>Windows (Chrome):</b> menu ⋮ → <b>Transmitir, salvar e compartilhar</b> → <b>Instalar página como app</b>.</li>
+      </ol>
+    </div>
+    <div class="help" id="help-done" hidden><strong>Aplicativo instalado.</strong> Procure o ícone DGFNSP na tela inicial ou no menu Iniciar.</div>
+    <div class="bar"></div>
+    <small>O acesso é feito com o usuário e a senha fornecidos pelo administrador.</small>
+  </main>
+  <script>
+    /* ===== CONFIGURAÇÃO: cole aqui o link /exec da implantação do Apps Script ===== */
+    const APP_URL = 'COLE_AQUI_O_LINK_EXEC';
+
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const btnInstall = document.getElementById('btn-install');
+    let deferredPrompt = null;
+    document.getElementById('btn-open').href = APP_URL;
+    if (isStandalone && /^https:\/\//.test(APP_URL)) window.location.replace(APP_URL);
+    if (isStandalone) btnInstall.hidden = true;
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+    window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferredPrompt = e; btnInstall.hidden = false; });
+    window.addEventListener('appinstalled', function () { deferredPrompt = null; btnInstall.hidden = true; document.getElementById('help-done').hidden = false; });
+    btnInstall.addEventListener('click', function () {
+      if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.finally(function () { deferredPrompt = null; }); return; }
+      document.getElementById(isIOS ? 'help-ios' : 'help-other').hidden = false;
+    });
+    if (/[?&]instalar=1/.test(location.search) && isIOS && !isStandalone) document.getElementById('help-ios').hidden = false;
+  </script>
+</body>
+</html>
